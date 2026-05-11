@@ -1,1 +1,356 @@
+# ============================================================
+# Drive - Stage 1 Config
+# ============================================================
 
+experiment:
+  name: "stage1_drive_yolo_s"
+  project_name: "Drive"
+  stage: 1
+  description: "YOLO-family non-KD baseline for road, lane, and edge segmentation."
+
+  seed: 42
+  deterministic: false
+
+  output_dir: "runs/stage1/drive_yolo_s"
+  checkpoint_dir: "runs/stage1/drive_yolo_s/checkpoints"
+  log_dir: "runs/stage1/drive_yolo_s/logs"
+  visualization_dir: "runs/stage1/drive_yolo_s/visualizations"
+  metrics_dir: "runs/stage1/drive_yolo_s/metrics"
+
+# ------------------------------------------------------------
+# Dataset config
+# ------------------------------------------------------------
+dataset_config: "configs/dataset_bdd100k.yaml"
+
+# ------------------------------------------------------------
+# Device
+# ------------------------------------------------------------
+device:
+  accelerator: "cuda"
+  gpu_ids: [0]
+  use_amp: true
+  channels_last: false
+  cudnn_benchmark: true
+
+# ------------------------------------------------------------
+# Model
+# ------------------------------------------------------------
+model:
+  name: "DriveYOLO"
+  variant: "s"
+
+  input_channels: 3
+  input_height: 384
+  input_width: 640
+
+  # ----------------------------------------------------------
+  # Backbone
+  # ----------------------------------------------------------
+  backbone:
+    name: "yolo_c2f"
+    variant: "small"
+
+    width_mult: 0.50
+    depth_mult: 0.33
+
+    activation: "silu"
+    normalization: "batchnorm"
+
+    stem_channels: 32
+
+    out_indices: ["p2", "p3", "p4", "p5"]
+
+    stages:
+      p2:
+        out_channels: 64
+        num_blocks: 1
+        stride: 4
+
+      p3:
+        out_channels: 128
+        num_blocks: 2
+        stride: 8
+
+      p4:
+        out_channels: 256
+        num_blocks: 2
+        stride: 16
+
+      p5:
+        out_channels: 512
+        num_blocks: 1
+        stride: 32
+
+  # ----------------------------------------------------------
+  # Neck
+  # ----------------------------------------------------------
+  neck:
+    name: "pan_fpn"
+
+    in_channels:
+      p2: 64
+      p3: 128
+      p4: 256
+      p5: 512
+
+    out_channels: 128
+
+    use_p2: true
+    use_p3: true
+    use_p4: true
+    use_p5: true
+
+    num_fusion_blocks: 2
+    activation: "silu"
+    normalization: "batchnorm"
+
+    upsample_mode: "nearest"
+
+  # ----------------------------------------------------------
+  # Heads
+  # ----------------------------------------------------------
+  heads:
+    road:
+      enabled: true
+      name: "segmentation_head"
+      num_classes: 2
+      in_channels: 128
+      hidden_channels: 128
+      num_conv_layers: 2
+      dropout: 0.00
+      output_activation: "softmax"
+
+    lane:
+      enabled: true
+      name: "segmentation_head"
+      num_classes: 2
+      in_channels: 128
+      hidden_channels: 128
+      num_conv_layers: 2
+      dropout: 0.00
+      output_activation: "softmax"
+
+    edge:
+      enabled: true
+      name: "edge_head"
+      num_classes: 1
+      in_channels: 128
+      hidden_channels: 96
+      num_conv_layers: 2
+      dropout: 0.00
+      output_activation: "sigmoid"
+
+      use_high_resolution_skip: true
+      high_resolution_source: "p2"
+
+# ------------------------------------------------------------
+# Loss
+# ------------------------------------------------------------
+loss:
+  name: "multitask_segmentation_loss"
+
+  task_weights:
+    road: 1.0
+    lane: 1.0
+    edge: 1.5
+
+  road:
+    type: "ce_dice"
+    ce_weight: 1.0
+    dice_weight: 1.0
+
+    class_weights: [0.40, 1.00]
+    ignore_index: 255
+    smooth: 1.0
+
+  lane:
+    type: "focal_dice"
+    focal_weight: 1.0
+    dice_weight: 1.0
+
+    alpha: 0.75
+    gamma: 2.0
+    ignore_index: 255
+    smooth: 1.0
+
+  edge:
+    type: "bce_dice"
+    bce_weight: 1.0
+    dice_weight: 1.0
+
+    pos_weight: 4.0
+    ignore_index: 255
+    smooth: 1.0
+
+# ------------------------------------------------------------
+# Optimizer
+# ------------------------------------------------------------
+optimizer:
+  name: "adamw"
+  lr: 0.0005
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+  eps: 0.00000001
+
+  param_groups:
+    enabled: false
+    backbone_lr_mult: 0.5
+    neck_lr_mult: 1.0
+    head_lr_mult: 1.0
+
+# ------------------------------------------------------------
+# Scheduler
+# ------------------------------------------------------------
+scheduler:
+  name: "cosine"
+
+  warmup:
+    enabled: true
+    warmup_epochs: 3
+    warmup_start_lr: 0.00001
+
+  cosine:
+    min_lr: 0.000001
+
+# ------------------------------------------------------------
+# Training
+# ------------------------------------------------------------
+train:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+
+  gradient_accumulation_steps: 1
+  max_grad_norm: 5.0
+
+  log_interval: 25
+  val_interval: 1
+  save_interval: 5
+
+  save_last: true
+  save_best: true
+  best_metric: "val/lane_f1"
+  best_metric_mode: "max"
+
+  resume:
+    enabled: false
+    checkpoint: ""
+
+  early_stopping:
+    enabled: false
+    patience: 20
+    monitor: "val/lane_f1"
+    mode: "max"
+
+# ------------------------------------------------------------
+# Validation
+# ------------------------------------------------------------
+validation:
+  batch_size: 8
+  num_workers: 4
+  pin_memory: true
+
+  threshold:
+    road: 0.50
+    lane: 0.35
+    edge: 0.40
+
+  save_predictions: false
+  save_overlays: true
+  max_visualizations: 32
+
+# ------------------------------------------------------------
+# Metrics
+# ------------------------------------------------------------
+metrics:
+  road:
+    - "miou"
+    - "dice"
+    - "pixel_accuracy"
+
+  lane:
+    - "f1"
+    - "precision"
+    - "recall"
+    - "iou"
+
+  edge:
+    - "boundary_f1"
+    - "precision"
+    - "recall"
+
+  runtime:
+    enabled: true
+    measure_fps: true
+    warmup_iters: 20
+    benchmark_iters: 100
+
+# ------------------------------------------------------------
+# Post-processing
+# ------------------------------------------------------------
+postprocess:
+  enabled: true
+
+  road:
+    threshold: 0.50
+    keep_largest_component: true
+    remove_small_components: true
+    min_component_area: 500
+    morphological_closing: true
+    closing_kernel_size: 7
+    extract_boundary: true
+
+  lane:
+    threshold: 0.35
+    remove_small_components: true
+    min_component_area: 30
+    skeletonize: true
+    fit_curves: true
+    curve_type: "polynomial"
+    polynomial_degree: 2
+
+  edge:
+    threshold: 0.40
+    remove_small_components: true
+    min_component_area: 20
+    keep_edges_near_masks: true
+    mask_dilation_radius: 5
+
+# ------------------------------------------------------------
+# Inference
+# ------------------------------------------------------------
+inference:
+  checkpoint: "runs/stage1/drive_yolo_s/checkpoints/best.pt"
+
+  input_size:
+    height: 384
+    width: 640
+
+  threshold:
+    road: 0.50
+    lane: 0.35
+    edge: 0.40
+
+  output:
+    save_raw_masks: true
+    save_probability_maps: false
+    save_overlays: true
+    save_lane_curves: true
+    save_road_boundaries: true
+
+# ------------------------------------------------------------
+# Export
+# ------------------------------------------------------------
+export:
+  onnx:
+    enabled: true
+    path: "runs/stage1/drive_yolo_s/export/drive_yolo_s.onnx"
+    opset: 17
+    dynamic_axes: true
+    simplify: true
+
+  torchscript:
+    enabled: false
+    path: "runs/stage1/drive_yolo_s/export/drive_yolo_s.ts"

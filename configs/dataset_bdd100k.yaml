@@ -1,1 +1,206 @@
+# ============================================================
+# Drive - BDD100K Dataset Configuration
+# ============================================================
 
+dataset:
+  name: "bdd100k"
+  task: "road_lane_edge_segmentation"
+
+  # ------------------------------------------------------------
+  # Raw BDD100K paths
+  # ------------------------------------------------------------
+  raw_root: "data/raw/bdd100k"
+
+  raw_images:
+    train: "data/raw/bdd100k/images/train"
+    val: "data/raw/bdd100k/images/val"
+    test: "data/raw/bdd100k/images/test"
+
+  raw_labels:
+    drivable_train: "data/raw/bdd100k/labels/drivable/train"
+    drivable_val: "data/raw/bdd100k/labels/drivable/val"
+
+    lanes_train: "data/raw/bdd100k/labels/lanes/train"
+    lanes_val: "data/raw/bdd100k/labels/lanes/val"
+
+  # ------------------------------------------------------------
+  # Processed mask paths
+  # ------------------------------------------------------------
+  processed_root: "data/processed/bdd100k"
+
+  processed_images:
+    train: "data/processed/bdd100k/images/train"
+    val: "data/processed/bdd100k/images/val"
+    test: "data/processed/bdd100k/images/test"
+
+  road_masks:
+    train: "data/processed/bdd100k/road_masks/train"
+    val: "data/processed/bdd100k/road_masks/val"
+    test: "data/processed/bdd100k/road_masks/test"
+
+  lane_masks:
+    train: "data/processed/bdd100k/lane_masks/train"
+    val: "data/processed/bdd100k/lane_masks/val"
+    test: "data/processed/bdd100k/lane_masks/test"
+
+  edge_masks:
+    train: "data/processed/bdd100k/edge_masks/train"
+    val: "data/processed/bdd100k/edge_masks/val"
+    test: "data/processed/bdd100k/edge_masks/test"
+
+  manifests:
+    train: "data/processed/bdd100k/manifest_train.csv"
+    val: "data/processed/bdd100k/manifest_val.csv"
+    test: "data/processed/bdd100k/manifest_test.csv"
+
+  splits:
+    train: "data/splits/train.txt"
+    val: "data/splits/val.txt"
+    test: "data/splits/test.txt"
+
+  # ------------------------------------------------------------
+  # Input image / mask settings
+  # ------------------------------------------------------------
+  image:
+    channels: 3
+    original_height: 720
+    original_width: 1280
+
+    height: 384
+    width: 640
+
+    interpolation: "bilinear"
+
+  masks:
+    road_num_classes: 2
+    lane_num_classes: 2
+    edge_num_classes: 1
+
+    road_ignore_index: 255
+    lane_ignore_index: 255
+    edge_ignore_index: 255
+
+    mask_interpolation: "nearest"
+
+  # ------------------------------------------------------------
+  # Label remapping
+  # ------------------------------------------------------------
+  label_mapping:
+    road:
+      background: 0
+      drivable: 1
+      merge_classes:
+        - "direct"
+        - "alternative"
+
+    lane:
+      background: 0
+      lane_marking: 1
+
+    edge:
+      background: 0
+      edge: 1
+
+  # ------------------------------------------------------------
+  # Edge-mask generation
+  # ------------------------------------------------------------
+  edge_generation:
+    enabled: true
+
+    method: "morphological_gradient"
+
+    road_edge_width: 5
+    lane_edge_width: 3
+
+    combine_road_and_lane_edges: true
+
+    save_binary: true
+    binary_threshold: 127
+
+  # ------------------------------------------------------------
+  # Dataset loading behavior
+  # ------------------------------------------------------------
+  loader:
+    read_image_mode: "rgb"
+    cache_images: false
+    cache_masks: false
+
+    verify_files: true
+    skip_missing: false
+
+    return_paths: true
+    return_image_id: true
+
+  # ------------------------------------------------------------
+  # Normalization
+  # ------------------------------------------------------------
+  normalization:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+
+  # ------------------------------------------------------------
+  # Augmentations
+  # ------------------------------------------------------------
+  augmentations:
+    train:
+      enabled: true
+
+      horizontal_flip:
+        enabled: true
+        probability: 0.5
+
+      random_brightness_contrast:
+        enabled: true
+        probability: 0.35
+        brightness_limit: 0.20
+        contrast_limit: 0.20
+
+      hue_saturation_value:
+        enabled: true
+        probability: 0.25
+        hue_shift_limit: 10
+        sat_shift_limit: 25
+        val_shift_limit: 20
+
+      motion_blur:
+        enabled: true
+        probability: 0.15
+        blur_limit: 5
+
+      gaussian_blur:
+        enabled: true
+        probability: 0.10
+        blur_limit: 3
+
+      random_shadow:
+        enabled: true
+        probability: 0.20
+
+      perspective:
+        enabled: true
+        probability: 0.20
+        scale: 0.05
+
+      shift_scale_rotate:
+        enabled: true
+        probability: 0.35
+        shift_limit: 0.05
+        scale_limit: 0.10
+        rotate_limit: 3
+
+      coarse_dropout:
+        enabled: false
+        probability: 0.10
+        max_holes: 8
+        max_height: 32
+        max_width: 32
+
+      mosaic:
+        enabled: false
+        probability: 0.00
+
+    val:
+      enabled: false
+
+    test:
+      enabled: false
