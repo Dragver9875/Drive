@@ -1,0 +1,94 @@
+# ============================================================
+# SegFormer-B1 Teacher Config
+# Teacher for Drive-KD
+# ============================================================
+
+teacher:
+  name: "SegFormer-B1-DriveTeacher"
+  type: "segformer_b1"
+  role: "teacher"
+
+  # ------------------------------------------------------------
+  # Pretrained backbone source.
+  # This can be implemented with Hugging Face Transformers.
+  # Recommended base:
+  #   nvidia/mit-b1
+  # or a SegFormer-B1 ADE/Cityscapes checkpoint adapted to 3 heads.
+  # ------------------------------------------------------------
+  pretrained:
+    enabled: true
+    source: "huggingface"
+    model_name: "nvidia/mit-b1"
+
+  input:
+    height: 384
+    width: 640
+    channels: 3
+
+  encoder:
+    name: "mit_b1"
+    output_hidden_states: true
+    return_intermediate_features: true
+    freeze: false
+
+    # Approximate SegFormer/MiT feature hierarchy.
+    # Actual feature shapes depend on implementation.
+    feature_levels:
+      - name: "s1"
+        stride: 4
+      - name: "s2"
+        stride: 8
+      - name: "s3"
+        stride: 16
+      - name: "s4"
+        stride: 32
+
+  decoder:
+    type: "segformer_mlp_decoder"
+    hidden_dim: 256
+    dropout: 0.10
+    align_corners: false
+
+    # Decoder receives multi-scale encoder features,
+    # projects them to hidden_dim, upsamples, concatenates,
+    # and fuses into one dense feature map.
+    use_all_encoder_features: true
+
+  heads:
+    road:
+      type: "semantic"
+      in_channels: 256
+      hidden_channels: 256
+      out_channels: 2
+      activation: "none"
+
+    lane:
+      type: "semantic"
+      in_channels: 256
+      hidden_channels: 256
+      out_channels: 2
+      activation: "none"
+
+    edge:
+      type: "binary"
+      in_channels: 256
+      hidden_channels: 128
+      out_channels: 1
+      activation: "none"
+
+  output:
+    return_logits: true
+    return_probabilities: true
+    return_features: true
+    return_attention: true
+
+  attention:
+    enabled: true
+    method: "channel_mean_abs"
+    layers:
+      - "s2"
+      - "s4"
+
+  initialization:
+    heads: "kaiming_normal"
+    decoder: "xavier_uniform"
