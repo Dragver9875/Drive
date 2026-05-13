@@ -1,0 +1,167 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drive-kd"
+version = "0.1.0"
+description = "Track C Drive Knowledge Distillation: SegFormer-B1 teacher to EfficientNet-B0 BiFPN road/lane/edge segmentation student."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Piyush Panda" }
+]
+keywords = [
+    "knowledge-distillation",
+    "semantic-segmentation",
+    "road-segmentation",
+    "lane-detection",
+    "bdd100k",
+    "segformer",
+    "efficientnet",
+    "bifpn",
+    "autonomous-driving",
+    "computer-vision"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "numpy>=1.26.0",
+    "pandas>=2.1.0",
+    "scipy>=1.11.0",
+    "scikit-learn>=1.3.0",
+    "torch>=2.2.0",
+    "torchvision>=0.17.0",
+    "timm>=0.9.16",
+    "transformers>=4.40.0",
+    "accelerate>=0.28.0",
+    "opencv-python>=4.8.0",
+    "Pillow>=10.0.0",
+    "albumentations>=1.4.0",
+    "PyYAML>=6.0.1",
+    "tqdm>=4.66.0",
+    "rich>=13.7.0",
+    "matplotlib>=3.8.0",
+    "tensorboard>=2.15.0",
+    "tabulate>=0.9.0",
+]
+
+[project.optional-dependencies]
+export = [
+    "onnx>=1.15.0",
+    "onnxruntime>=1.17.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.8.0",
+]
+all = [
+    "onnx>=1.15.0",
+    "onnxruntime>=1.17.0",
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.8.0",
+]
+
+[project.urls]
+Repository = "https://github.com/pandapiyush086/Drive-KD"
+Documentation = "https://github.com/pandapiyush086/Drive-KD"
+Issues = "https://github.com/pandapiyush086/Drive-KD/issues"
+
+[tool.setuptools]
+packages = ["drive_kd"]
+
+[tool.setuptools.package-data]
+drive_kd = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | build
+  | dist
+  | outputs
+  | data
+  | notebooks
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["drive_kd"]
+skip = [
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "outputs",
+    "data",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "outputs",
+    "data",
+    "notebooks",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+    "C4",
+    "SIM",
+]
+ignore = [
+    "E501",
+]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+exclude = [
+    "build/",
+    "dist/",
+    "outputs/",
+    "data/",
+    "notebooks/",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra -q"

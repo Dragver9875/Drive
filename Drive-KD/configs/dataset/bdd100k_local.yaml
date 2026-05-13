@@ -5,15 +5,15 @@ dataset:
   image_width: 640
 
   original_bdd_root: "D:/Datasets/bdd100k"
-  processed_masks_root: "D:/Datasets/drive-stage1-bdd100k-processed"
+  processed_masks_root: "D:/Datasets/drive-bdd100k-processed"
 
   image_roots:
     train: "D:/Datasets/bdd100k/images/100k/train"
     val: "D:/Datasets/bdd100k/images/100k/val"
 
   portable_manifests:
-    train: "D:/Datasets/drive-stage1-bdd100k-processed/manifests/manifest_train_portable.csv"
-    val: "D:/Datasets/drive-stage1-bdd100k-processed/manifests/manifest_val_portable.csv"
+    train: "D:/Datasets/drive-bdd100k-processed/manifests/manifest_train_portable.csv"
+    val: "D:/Datasets/drive-bdd100k-processed/manifests/manifest_val_portable.csv"
 
   absolute_manifests:
     train: "data/manifests/train_absolute.csv"
