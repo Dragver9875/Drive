@@ -1,0 +1,24 @@
+dataset:
+  name: "bdd100k_drive_kd_local"
+
+  image_height: 384
+  image_width: 640
+
+  original_bdd_root: "D:/Datasets/bdd100k"
+  processed_masks_root: "D:/Datasets/drive-stage1-bdd100k-processed"
+
+  image_roots:
+    train: "D:/Datasets/bdd100k/images/100k/train"
+    val: "D:/Datasets/bdd100k/images/100k/val"
+
+  portable_manifests:
+    train: "D:/Datasets/drive-stage1-bdd100k-processed/manifests/manifest_train_portable.csv"
+    val: "D:/Datasets/drive-stage1-bdd100k-processed/manifests/manifest_val_portable.csv"
+
+  absolute_manifests:
+    train: "data/manifests/train_absolute.csv"
+    val: "data/manifests/val_absolute.csv"
+
+  normalization:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
