@@ -1,13 +1,10 @@
-from drive_kd.models.common.attention import (
-    compute_spatial_attention,
-    normalize_attention_map,
-)
-from drive_kd.models.common.bifpn_lite import BiFPNLite
-from drive_kd.models.common.conv import ConvBNAct, DepthwiseSeparableConv, autopad
-from drive_kd.models.common.heads import MultiTaskSegmentationHeads, SegmentationHead
-from drive_kd.models.common.initialization import initialize_module
-from drive_kd.models.common.sppf import SPPF
-from drive_kd.models.common.weighted_fusion import WeightedFusion
+from .attention import compute_spatial_attention, normalize_attention_map
+from .bifpn_lite import BiFPNLite
+from .conv import ConvBNAct, DepthwiseSeparableConv, autopad
+from .heads import MultiTaskSegmentationHeads, SegmentationHead
+from .initialization import initialize_module
+from .sppf import SPPF
+from .weighted_fusion import WeightedFusion
 
 __all__ = [
     "autopad",
