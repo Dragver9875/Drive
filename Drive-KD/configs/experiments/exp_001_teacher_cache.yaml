@@ -1,0 +1,67 @@
+# ============================================================
+# Experiment 001
+# Generate SegFormer-B1 Teacher Cache
+# ============================================================
+
+experiment:
+  name: "exp_001_teacher_cache"
+  stage: "teacher_cache_generation"
+  seed: 42
+
+  dataset_config: "configs/dataset/bdd100k_local.yaml"
+  teacher_config: "configs/teacher/segformer_b1_teacher.yaml"
+  cache_config: "configs/teacher/segformer_b1_cache.yaml"
+
+teacher:
+  checkpoint: "outputs/teacher_segformer_b1/checkpoints/best.pt"
+  strict_load: true
+
+output:
+  cache_root: "data/cache/teacher_segformer_b1"
+  reports_dir: "data/cache/teacher_segformer_b1/reports"
+
+cache:
+  splits:
+    - "train"
+    - "val"
+
+  batch_size: 4
+  num_workers: 2
+  amp: true
+
+  save_probabilities: true
+  save_logits: false
+  save_boundaries: true
+  save_attention: true
+
+  probability_dtype: "float16"
+  attention_dtype: "float16"
+
+  overwrite_existing: false
+  verify_after_write: true
+
+boundary_generation:
+  enabled: true
+  method: "morphological_gradient"
+  source: "teacher_edge_prob"
+
+  thresholds:
+    road: 0.50
+    lane: 0.35
+    edge: 0.40
+
+  kernel_size: 3
+
+kd_manifest:
+  enabled: true
+  train_output: "data/manifests/train_kd.csv"
+  val_output: "data/manifests/val_kd.csv"
+
+validation:
+  check_file_count: true
+  check_npz_keys: true
+  check_nonzero_probabilities: true
+  check_nonzero_boundaries: true
+
+logging:
+  print_every: 100
