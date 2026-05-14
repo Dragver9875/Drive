@@ -83,8 +83,9 @@ Repository = "https://github.com/pandapiyush086/Drive-KD"
 Documentation = "https://github.com/pandapiyush086/Drive-KD"
 Issues = "https://github.com/pandapiyush086/Drive-KD/issues"
 
-[tool.setuptools]
-packages = ["drive_kd"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["drive_kd*"]
 
 [tool.setuptools.package-data]
 drive_kd = ["py.typed"]
