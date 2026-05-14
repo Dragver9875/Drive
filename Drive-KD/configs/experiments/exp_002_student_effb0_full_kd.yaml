@@ -1,0 +1,95 @@
+# ============================================================
+# Experiment 002
+# Drive-EffB0-BiFPN-KD distilled from SegFormer-B1
+# ============================================================
+
+experiment:
+  name: "exp_002_student_effb0_full_kd"
+  stage: "student_kd_training"
+  seed: 42
+
+  dataset_config: "configs/dataset/bdd100k_local.yaml"
+  student_config: "configs/student/drive_effb0_bifpn_kd.yaml"
+  kd_config: "configs/kd/kd_full.yaml"
+
+output:
+  run_dir: "outputs/student_effb0_kd"
+  checkpoint_dir: "outputs/student_effb0_kd/checkpoints"
+  metrics_dir: "outputs/student_effb0_kd/metrics"
+  visualization_dir: "outputs/student_effb0_kd/visualizations"
+  config_dir: "outputs/student_effb0_kd/configs"
+
+data:
+  train_manifest: "data/manifests/train_kd.csv"
+  val_manifest: "data/manifests/val_kd.csv"
+
+training:
+  epochs: 50
+  batch_size: 4
+  grad_accum_steps: 2
+  num_workers: 2
+
+  amp: true
+  channels_last: false
+  compile: false
+  resume: true
+
+  # Optional: initialize from a previous supervised EffB0 student
+  # if you later decide to train one. For Track C standalone,
+  # leave enabled: false.
+  init_from_supervised_student:
+    enabled: false
+    checkpoint: "outputs/student_effb0_supervised/checkpoints/best.pt"
+    strict: false
+
+  optimizer:
+    name: "adamw"
+    lr: 0.0003
+    weight_decay: 0.0001
+    betas: [0.9, 0.999]
+
+  scheduler:
+    name: "cosine"
+    min_lr: 0.000001
+    warmup_epochs: 2
+
+  gradient_clipping:
+    enabled: true
+    max_norm: 5.0
+
+loss:
+  supervised_weight: 1.0
+  probability_kd_weight: 0.5
+  boundary_kd_weight: 0.3
+  attention_kd_weight: 0.1
+
+metrics:
+  thresholds:
+    road: 0.50
+    lane: 0.35
+    edge: 0.40
+
+  monitor: "val/lane_f1"
+  mode: "max"
+
+checkpointing:
+  save_best: true
+  save_last: true
+  save_every_epoch: true
+  monitor: "val/lane_f1"
+  mode: "max"
+
+validation:
+  run_every_epoch: true
+  max_visualizations: 16
+
+logging:
+  print_every: 50
+  use_tensorboard: true
+
+export:
+  enabled_after_training: false
+  output_dir: "outputs/exports"
+  formats:
+    - "pt"
+    - "onnx"
