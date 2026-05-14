@@ -86,6 +86,12 @@ Issues = "https://github.com/pandapiyush086/Drive-KD/issues"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["drive_kd*"]
+exclude = [
+    "data*",
+    "outputs*",
+    "tests*",
+    "notebooks*",
+]
 
 [tool.setuptools.package-data]
 drive_kd = ["py.typed"]
