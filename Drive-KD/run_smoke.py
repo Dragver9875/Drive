@@ -14,7 +14,6 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent
 
-
 DEFAULTS = {
     "dataset_config": "configs/dataset/bdd100k_local.yaml",
     "teacher_config": "configs/teacher/segformer_b1_teacher.yaml",
