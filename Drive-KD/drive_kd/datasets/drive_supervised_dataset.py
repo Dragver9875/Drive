@@ -14,20 +14,6 @@ from drive_kd.datasets.transforms import build_drive_transforms
 
 
 class DriveSupervisedDataset(Dataset):
-    """
-    Dataset for supervised road/lane/edge training.
-
-    Used for:
-      1. SegFormer-B1 teacher training.
-      2. Evaluation.
-      3. Optional non-KD student training.
-
-    Returns:
-      image:      FloatTensor [3, H, W]
-      road_mask:  LongTensor  [H, W]
-      lane_mask:  LongTensor  [H, W]
-      edge_mask:  FloatTensor [1, H, W]
-    """
 
     REQUIRED_COLUMNS = [
         "image_id",
@@ -102,8 +88,6 @@ class DriveSupervisedDataset(Dataset):
         lane_mask = self.read_mask_binary(row["lane_mask_path"])
         edge_mask = self.read_mask_binary(row["edge_mask_path"])
 
-        # Raw images can be 720x1280 while masks are already 384x640.
-        # Albumentations checks shape consistency before transforms.
         if image.shape[:2] != road_mask.shape[:2]:
             image = cv2.resize(
                 image,

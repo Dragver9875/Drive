@@ -13,30 +13,6 @@ from drive_kd.datasets.transforms import build_drive_transforms
 
 
 class DriveKDDataset(DriveSupervisedDataset):
-    """
-    Dataset for Track C student KD training.
-
-    Returns:
-      image
-      ground-truth road/lane/edge masks
-      teacher road/lane/edge soft probabilities
-      teacher boundary map
-      teacher attention maps
-
-    Expected KD manifest columns:
-      image_id
-      image_name
-      image_path
-      road_mask_path
-      lane_mask_path
-      edge_mask_path
-      teacher_prob_path
-      teacher_boundary_path
-      teacher_attention_path
-      split
-      height
-      width
-    """
 
     REQUIRED_KD_COLUMNS = [
         "image_id",
@@ -166,7 +142,6 @@ class DriveKDDataset(DriveSupervisedDataset):
         teacher_lane_prob = teacher_probs["lane_prob"]
         teacher_edge_prob = teacher_probs["edge_prob"]
 
-        # Ensure image and all maps have the same H,W before Albumentations.
         if image.shape[:2] != road_mask.shape[:2]:
             image = cv2.resize(
                 image,
