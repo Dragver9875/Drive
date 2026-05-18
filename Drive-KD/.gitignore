@@ -71,7 +71,7 @@ mlruns/
 # ============================================================
 
 data/*
-data/manifests/*.csv
+data/manifests/*
 data/cache/
 data/raw/
 data/processed/
