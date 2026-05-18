@@ -1,0 +1,228 @@
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+site/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ============================================================
+# Virtual environments
+# ============================================================
+.venv/
+venv/
+env/
+ENV/
+.conda/
+conda-meta/
+
+# ============================================================
+# IDE / editor
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+Thumbs.db
+
+# ============================================================
+# Jupyter / Kaggle notebooks
+# ============================================================
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+kaggle/working/
+kaggle/temp/
+kaggle/input/
+
+# Keep actual notebooks tracked
+!*.ipynb
+
+# ============================================================
+# Environment / secrets
+# ============================================================
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.jsonl
+
+# Kaggle credentials must never be committed
+kaggle.json
+
+# ============================================================
+# Dataset files
+# ============================================================
+data/*
+!data/.gitkeep
+!data/manifests/
+!data/manifests/.gitkeep
+!data/cache/
+!data/cache/.gitkeep
+
+datasets/
+dataset/
+BDD100K/
+bdd100k/
+drive-bdd100k-processed/
+drive-stage1-bdd100k-processed/
+
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# Image/mask dumps
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tif
+*.tiff
+*.webp
+
+# Allow documentation images only if placed under docs/assets
+!docs/
+!docs/assets/
+!docs/assets/*.png
+!docs/assets/*.jpg
+!docs/assets/*.jpeg
+!docs/assets/*.webp
+
+# ============================================================
+# Training outputs
+# ============================================================
+outputs/
+runs/
+wandb/
+mlruns/
+lightning_logs/
+logs/
+checkpoints/
+weights/
+artifacts/
+experiments/
+
+# Model files
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.torchscript
+*.engine
+*.trt
+*.safetensors
+
+# Tensor/cache files
+*.npz
+*.npy
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+
+# ============================================================
+# Drive-KD generated outputs
+# ============================================================
+Drive-KD/outputs/
+Drive-KD/runs/
+Drive-KD/logs/
+Drive-KD/checkpoints/
+Drive-KD/data/*
+!Drive-KD/data/.gitkeep
+!Drive-KD/data/manifests/
+!Drive-KD/data/manifests/.gitkeep
+!Drive-KD/data/cache/
+!Drive-KD/data/cache/.gitkeep
+
+Drive-KD/data/manifests/*.csv
+Drive-KD/data/cache/teacher_segformer_b1/
+Drive-KD/outputs/teacher_segformer_b1/
+Drive-KD/outputs/student_effb0_kd/
+Drive-KD/outputs/evaluation/
+Drive-KD/outputs/exports/
+Drive-KD/outputs/smoke/
+
+# ============================================================
+# Reports / generated documents
+# ============================================================
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Keep final PDFs if intentionally committed
+# Uncomment below if PDFs should not be committed:
+# *.pdf
+
+# ============================================================
+# Temporary files
+# ============================================================
+tmp/
+temp/
+.cache/
+*.tmp
+*.bak
+*.old
+
+# ============================================================
+# OS-specific
+# ============================================================
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ============================================================
+# Large media / videos
+# ============================================================
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.gif
+
+# ============================================================
+# Profiling / debugging
+# ============================================================
+*.prof
+*.trace
+*.sqlite
+*.sqlite3
+memory_snapshot*.pickle
+cuda_memory*.json
+
+# ============================================================
+# Keep repository control files
+# ============================================================
+!.gitignore
+!README.md
+!requirements.txt
+!pyproject.toml
