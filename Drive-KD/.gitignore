@@ -70,6 +70,7 @@ mlruns/
 # Local datasets and generated data
 # ============================================================
 
+data/*
 data/manifests/*.csv
 data/cache/
 data/raw/
