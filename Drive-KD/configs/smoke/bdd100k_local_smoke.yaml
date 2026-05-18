@@ -1,0 +1,107 @@
+dataset:
+  name: bdd100k_drive_kd_local
+  task: road_lane_edge_segmentation
+  source: local
+  image_height: 384
+  image_width: 640
+  channels: 3
+  original_bdd_root: D:/PANDA/Datasets/bdd100k
+  processed_masks_root: D:/PANDA/Datasets/drive-bdd100k-processed
+  image_roots:
+    train: D:/PANDA/Datasets/bdd100k/images/100k/train
+    val: D:/PANDA/Datasets/bdd100k/images/100k/val
+  portable_manifests:
+    train: D:/PANDA/Datasets/drive-bdd100k-processed/manifests/manifest_train_portable.csv
+    val: D:/PANDA/Datasets/drive-bdd100k-processed/manifests/manifest_val_portable.csv
+  absolute_manifests:
+    train: outputs/smoke/data/manifests/train_absolute_smoke.csv
+    val: outputs/smoke/data/manifests/val_absolute_smoke.csv
+  kd_manifests:
+    train: outputs/smoke/data/manifests/train_kd_smoke.csv
+    val: outputs/smoke/data/manifests/val_kd_smoke.csv
+  masks:
+    road:
+      train_rel: road_masks/train
+      val_rel: road_masks/val
+    lane:
+      train_rel: lane_masks/train
+      val_rel: lane_masks/val
+    edge:
+      train_rel: edge_masks/train
+      val_rel: edge_masks/val
+    convention:
+      background_value: 0
+      positive_value: 255
+      threshold: 127
+  expected_counts:
+    train_min_rows: 1
+    val_min_rows: 1
+    train_expected_rows: 16
+    val_expected_rows: 4
+  normalization:
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+  loader:
+    num_workers: 0
+    pin_memory: true
+    persistent_workers: true
+    prefetch_factor: 2
+  transforms:
+    train:
+      resize:
+        enabled: true
+        height: 384
+        width: 640
+      horizontal_flip:
+        enabled: true
+        p: 0.5
+      brightness_contrast:
+        enabled: true
+        brightness_limit: 0.2
+        contrast_limit: 0.2
+        p: 0.35
+      hue_saturation_value:
+        enabled: true
+        hue_shift_limit: 10
+        sat_shift_limit: 25
+        val_shift_limit: 20
+        p: 0.25
+      motion_blur:
+        enabled: true
+        blur_limit: 5
+        p: 0.15
+      gaussian_blur:
+        enabled: true
+        blur_limit: 3
+        p: 0.1
+      affine:
+        enabled: true
+        translate_percent_x:
+        - -0.05
+        - 0.05
+        translate_percent_y:
+        - -0.05
+        - 0.05
+        scale:
+        - 0.9
+        - 1.1
+        rotate:
+        - -3.0
+        - 3.0
+        p: 0.35
+    val:
+      resize:
+        enabled: true
+        height: 384
+        width: 640
+    cache:
+      resize:
+        enabled: true
+        height: 384
+        width: 640

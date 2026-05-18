@@ -1,0 +1,48 @@
+experiment:
+  name: smoke_teacher_cache
+  stage: teacher_cache_generation
+  seed: 42
+  dataset_config: configs/smoke/bdd100k_local_smoke.yaml
+  teacher_config: configs/smoke/segformer_b1_teacher_smoke.yaml
+  cache_config: configs/teacher/segformer_b1_cache.yaml
+teacher:
+  checkpoint: outputs/smoke/teacher_segformer_b1/checkpoints/best.pt
+  strict_load: true
+output:
+  cache_root: outputs/smoke/data/cache/teacher_segformer_b1
+  reports_dir: outputs/smoke/data/cache/teacher_segformer_b1/reports
+cache:
+  splits:
+  - train
+  - val
+  batch_size: 1
+  num_workers: 0
+  amp: true
+  save_probabilities: true
+  save_logits: false
+  save_boundaries: true
+  save_attention: true
+  probability_dtype: float16
+  attention_dtype: float16
+  overwrite_existing: true
+  verify_after_write: true
+boundary_generation:
+  enabled: true
+  method: morphological_gradient
+  source: teacher_edge_prob
+  thresholds:
+    road: 0.5
+    lane: 0.35
+    edge: 0.4
+  kernel_size: 3
+kd_manifest:
+  enabled: true
+  train_output: outputs/smoke/data/manifests/train_kd_smoke.csv
+  val_output: outputs/smoke/data/manifests/val_kd_smoke.csv
+validation:
+  check_file_count: true
+  check_npz_keys: true
+  check_nonzero_probabilities: true
+  check_nonzero_boundaries: true
+logging:
+  print_every: 100

@@ -1,0 +1,73 @@
+experiment:
+  name: smoke_student_effb0_full_kd
+  stage: student_kd_training
+  seed: 42
+  dataset_config: configs/smoke/bdd100k_local_smoke.yaml
+  student_config: configs/smoke/drive_effb0_bifpn_kd_smoke.yaml
+  kd_config: configs/smoke/kd_full_smoke.yaml
+output:
+  run_dir: outputs/smoke/student_effb0_kd
+  checkpoint_dir: outputs/smoke/student_effb0_kd/checkpoints
+  metrics_dir: outputs/smoke/student_effb0_kd/metrics
+  visualization_dir: outputs/smoke/student_effb0_kd/visualizations
+  config_dir: outputs/smoke/student_effb0_kd/configs
+data:
+  train_manifest: outputs/smoke/data/manifests/train_kd_smoke.csv
+  val_manifest: outputs/smoke/data/manifests/val_kd_smoke.csv
+training:
+  epochs: 1
+  batch_size: 1
+  grad_accum_steps: 1
+  num_workers: 0
+  amp: true
+  channels_last: false
+  compile: false
+  resume: false
+  init_from_supervised_student:
+    enabled: false
+    checkpoint: outputs/student_effb0_supervised/checkpoints/best.pt
+    strict: false
+  optimizer:
+    name: adamw
+    lr: 0.0003
+    weight_decay: 0.0001
+    betas:
+    - 0.9
+    - 0.999
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06
+    warmup_epochs: 2
+  gradient_clipping:
+    enabled: true
+    max_norm: 5.0
+loss:
+  supervised_weight: 1.0
+  probability_kd_weight: 0.5
+  boundary_kd_weight: 0.3
+  attention_kd_weight: 0.1
+metrics:
+  thresholds:
+    road: 0.5
+    lane: 0.35
+    edge: 0.4
+  monitor: val/lane_f1
+  mode: max
+checkpointing:
+  save_best: true
+  save_last: true
+  save_every_epoch: false
+  monitor: val/lane_f1
+  mode: max
+validation:
+  run_every_epoch: true
+  max_visualizations: 2
+logging:
+  print_every: 50
+  use_tensorboard: true
+export:
+  enabled_after_training: false
+  output_dir: outputs/exports
+  formats:
+  - pt
+  - onnx

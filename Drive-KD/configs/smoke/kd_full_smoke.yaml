@@ -1,0 +1,111 @@
+kd:
+  enabled: true
+  name: full_probability_boundary_attention_kd
+  teacher:
+    name: SegFormer-B1-DriveTeacher
+    cache_root: outputs/smoke/data/cache/teacher_segformer_b1
+    probabilities:
+      enabled: true
+      train_dir: outputs/smoke/data/cache/teacher_segformer_b1/probabilities/train
+      val_dir: outputs/smoke/data/cache/teacher_segformer_b1/probabilities/val
+    boundaries:
+      enabled: true
+      train_dir: outputs/smoke/data/cache/teacher_segformer_b1/boundaries/train
+      val_dir: outputs/smoke/data/cache/teacher_segformer_b1/boundaries/val
+    attention:
+      enabled: true
+      train_dir: outputs/smoke/data/cache/teacher_segformer_b1/attention/train
+      val_dir: outputs/smoke/data/cache/teacher_segformer_b1/attention/val
+  student:
+    name: Drive-EffB0-BiFPN-KD
+  temperature:
+    road: 3.0
+    lane: 4.0
+    edge: 2.0
+  weights:
+    supervised: 1.0
+    probability_kd: 0.5
+    boundary_kd: 0.3
+    attention_kd: 0.1
+  tasks:
+    road:
+      enabled: true
+      supervised: true
+      kd: true
+      supervised_weight: 1.0
+      kd_weight: 1.0
+    lane:
+      enabled: true
+      supervised: true
+      kd: true
+      supervised_weight: 1.0
+      kd_weight: 1.5
+    edge:
+      enabled: true
+      supervised: true
+      kd: true
+      supervised_weight: 1.5
+      kd_weight: 1.5
+  supervised_loss:
+    road:
+      ce:
+        enabled: true
+        class_weights:
+        - 0.4
+        - 1.0
+      dice:
+        enabled: true
+        smooth: 1.0
+    lane:
+      focal_ce:
+        enabled: true
+        alpha: 0.75
+        gamma: 2.0
+      dice:
+        enabled: true
+        smooth: 1.0
+    edge:
+      bce:
+        enabled: true
+        pos_weight: 4.0
+      dice:
+        enabled: true
+        smooth: 1.0
+  probability_kd:
+    enabled: true
+    type: bce_soft_targets
+    road:
+      enabled: true
+      loss: bce
+      weight: 1.0
+    lane:
+      enabled: true
+      loss: bce
+      weight: 1.5
+    edge:
+      enabled: true
+      loss: bce_dice
+      weight: 1.5
+  boundary_kd:
+    enabled: true
+    source: teacher_boundary
+    loss: bce_dice
+    weight: 0.3
+    pos_weight: 4.0
+    smooth: 1.0
+  attention_kd:
+    enabled: true
+    method: spatial_l2
+    normalize: true
+    weight: 0.1
+    layer_pairs:
+    - teacher: s2
+      student: p2
+      weight: 1.0
+    - teacher: s4
+      student: p4
+      weight: 1.0
+  scheduling:
+    enabled: true
+    kd_warmup_epochs: 3
+    mode: linear

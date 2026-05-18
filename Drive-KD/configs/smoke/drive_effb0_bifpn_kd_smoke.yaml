@@ -1,0 +1,88 @@
+student:
+  name: Drive-EffB0-BiFPN-KD
+  type: drive_effb0_bifpn
+  role: student
+  input:
+    height: 384
+    width: 640
+    channels: 3
+  encoder:
+    name: efficientnet_b0
+    pretrained: true
+    pretrained_source: timm
+    timm_model_name: efficientnet_b0
+    features_only: true
+    freeze: false
+    pyramid_levels:
+    - name: p1
+      target_stride: 2
+    - name: p2
+      target_stride: 4
+    - name: p3
+      target_stride: 8
+    - name: p4
+      target_stride: 16
+    - name: p5
+      target_stride: 32
+  adapters:
+    enabled: true
+    type: conv1x1
+    out_channels: 96
+    normalization: batchnorm
+    activation: silu
+  sppf:
+    enabled: true
+    apply_to: p5
+    kernel_size: 5
+    out_channels: 96
+  neck:
+    type: bifpn_lite
+    channels: 96
+    num_repeats: 1
+    weighted_fusion: true
+    epsilon: 0.0001
+    activation: silu
+    normalization: batchnorm
+    output_level: p1
+  heads:
+    road:
+      type: semantic
+      in_channels: 96
+      hidden_channels: 96
+      out_channels: 2
+      num_convs: 2
+      upsample_to_input: true
+    lane:
+      type: semantic
+      in_channels: 96
+      hidden_channels: 96
+      out_channels: 2
+      num_convs: 2
+      upsample_to_input: true
+    edge:
+      type: binary
+      in_channels: 96
+      hidden_channels: 48
+      out_channels: 1
+      num_convs: 2
+      upsample_to_input: true
+  output:
+    return_logits: true
+    return_probabilities: true
+    return_features: true
+    return_attention: true
+  attention:
+    enabled: true
+    method: channel_mean_abs
+    layers:
+    - p2
+    - p4
+  initialization:
+    adapters: kaiming_normal
+    sppf: kaiming_normal
+    neck: kaiming_normal
+    heads: kaiming_normal
+  inference:
+    road_threshold: 0.5
+    lane_threshold: 0.35
+    edge_threshold: 0.4

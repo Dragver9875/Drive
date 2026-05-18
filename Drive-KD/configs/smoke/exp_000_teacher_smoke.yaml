@@ -1,0 +1,82 @@
+experiment:
+  name: smoke_teacher_segformer_b1
+  stage: teacher_training
+  seed: 42
+  dataset_config: configs/smoke/bdd100k_local_smoke.yaml
+  teacher_config: configs/smoke/segformer_b1_teacher_smoke.yaml
+output:
+  run_dir: outputs/smoke/teacher_segformer_b1
+  checkpoint_dir: outputs/smoke/teacher_segformer_b1/checkpoints
+  metrics_dir: outputs/smoke/teacher_segformer_b1/metrics
+  visualization_dir: outputs/smoke/teacher_segformer_b1/visualizations
+  config_dir: outputs/smoke/teacher_segformer_b1/configs
+training:
+  epochs: 1
+  batch_size: 1
+  grad_accum_steps: 1
+  num_workers: 0
+  amp: true
+  channels_last: false
+  compile: false
+  resume: false
+  optimizer:
+    name: adamw
+    lr: 6.0e-05
+    weight_decay: 0.01
+    betas:
+    - 0.9
+    - 0.999
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06
+    warmup_epochs: 2
+  gradient_clipping:
+    enabled: true
+    max_norm: 5.0
+loss:
+  road_weight: 1.0
+  lane_weight: 1.0
+  edge_weight: 1.5
+  road:
+    ce:
+      enabled: true
+      class_weights:
+      - 0.4
+      - 1.0
+    dice:
+      enabled: true
+      smooth: 1.0
+  lane:
+    focal_ce:
+      enabled: true
+      alpha: 0.75
+      gamma: 2.0
+    dice:
+      enabled: true
+      smooth: 1.0
+  edge:
+    bce:
+      enabled: true
+      pos_weight: 4.0
+    dice:
+      enabled: true
+      smooth: 1.0
+metrics:
+  thresholds:
+    road: 0.5
+    lane: 0.35
+    edge: 0.4
+  monitor: val/lane_f1
+  mode: max
+checkpointing:
+  save_best: true
+  save_last: true
+  save_every_epoch: false
+  monitor: val/lane_f1
+  mode: max
+validation:
+  run_every_epoch: true
+  max_visualizations: 2
+logging:
+  print_every: 50
+  use_tensorboard: true
